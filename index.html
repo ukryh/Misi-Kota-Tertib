@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Misi Kota Tertib</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+/* Tata letak: satu kolom seperti peta jalan. Papan rambu navy untuk judul dan tugas,
+   kartu putih untuk bacaan dan isian, lampu lalu lintas sebagai penanda misi. */
+:root{
+  --aspal:#1B1F2E; --aspal-2:#272C40; --aspal-3:#3A4160;
+  --rambu:#16337A; --marka:#F5F6F8; --tinta:#161A2B; --abu:#565C74; --garis:#D3D7E4;
+  --muda:#AEB4CC;
+  --merah:#E5383B; --kuning:#F9B91B; --hijau:#2DB45E; --hijau-tua:#0F6B3B;
+  --f-display:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+  --f-body:'Atkinson Hyperlegible','Segoe UI',system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{background:var(--aspal)}
+body{
+  margin:0;padding-block:18px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  color:var(--marka);font:400 16px/1.55 var(--f-body);
+}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:16px;min-width:0}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1.05;margin:0;text-wrap:balance}
+p{margin:0}
+a{color:var(--kuning)}
+button,input,textarea{font:inherit}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.brand{font:700 15px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muda)}
+.skor{font:700 22px/1 var(--f-display);color:var(--kuning);font-variant-numeric:tabular-nums;white-space:nowrap}
+.marka-bar{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.marka-bar i{height:6px;border-radius:3px;background:var(--aspal-3)}
+.marka-bar i.on{background:var(--hijau)}
+
+.sign{background:var(--rambu);border-radius:20px;box-shadow:inset 0 0 0 4px var(--marka);padding:24px 24px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.sign h1{font-size:clamp(40px,11vw,60px)}
+.sign h2{font-size:clamp(28px,7.5vw,38px)}
+.sign .lab{font:700 14px/1 var(--f-display);letter-spacing:.16em;text-transform:uppercase;color:#BFD0FF}
+.sign p{color:#EEF2FF}
+.card{background:var(--marka);color:var(--tinta);border-radius:14px;padding:18px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card .lab{font:700 14px/1 var(--f-display);letter-spacing:.16em;text-transform:uppercase;color:var(--abu)}
+.card h3{font-size:24px}
+.muted{color:var(--muda)}
+.card .muted{color:var(--abu)}
+
+.btn{appearance:none;border:0;cursor:pointer;font:700 19px/1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;min-height:48px;padding:0 22px;border-radius:12px;background:var(--hijau);color:#06280F;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:disabled{background:var(--aspal-3);color:#9097B3;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--marka);box-shadow:inset 0 0 0 2px #5A6188}
+.btn.amber{background:var(--kuning);color:#2B1D00}
+.btn.small{min-height:40px;padding:0 14px;font-size:16px}
+.btn:focus-visible,.misi:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+label{display:block;font-weight:700;font-size:15px;margin-bottom:6px}
+input[type=text],input[type=password],textarea{width:100%;border:2px solid var(--garis);border-radius:10px;padding:12px;background:#fff;color:var(--tinta);font-size:16px;line-height:1.5}
+input:focus,textarea:focus{border-color:var(--rambu)}
+textarea{min-height:210px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid2>div{min-width:0}
+@media (max-width:420px){.grid2{grid-template-columns:1fr}}
+
+.tertib{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tertib li{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:baseline}
+.tertib b{font:700 15px/1.2 var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--rambu)}
+@media (max-width:420px){.tertib li{grid-template-columns:1fr;gap:2px}}
+
+.lampu-svg{width:62px;flex:none}
+.l-r,.l-k,.l-h{transition:opacity .2s}
+.l-r{fill:var(--merah);opacity:.18;animation:siklus-r 7s infinite}
+.l-k{fill:var(--kuning);opacity:.18;animation:siklus-k 7s infinite}
+.l-h{fill:var(--hijau);opacity:1;animation:siklus-h 7s infinite}
+@keyframes siklus-r{0%,34%{opacity:1}38%,100%{opacity:.18}}
+@keyframes siklus-k{0%,34%{opacity:.18}38%,46%{opacity:1}50%,100%{opacity:.18}}
+@keyframes siklus-h{0%,46%{opacity:.18}50%,92%{opacity:1}96%,100%{opacity:.18}}
+.hero{display:flex;gap:18px;align-items:center}
+.hero>div{min-width:0}
+
+/* peta */
+.jalan{position:relative;display:grid;gap:10px}
+.jalan::before{content:"";position:absolute;left:21px;top:0;bottom:0;border-left:3px dashed var(--aspal-3)}
+.baris{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center}
+.zona-h{margin-top:10px}
+.rambu-no{width:34px;height:34px;border-radius:8px;background:var(--marka);color:var(--tinta);font:800 22px/34px var(--f-display);text-align:center;justify-self:center;box-shadow:0 0 0 4px var(--aspal);position:relative;z-index:1}
+.papan-hijau{background:var(--hijau-tua);border-radius:12px;box-shadow:inset 0 0 0 3px var(--marka);padding:12px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.papan-hijau b{font:800 23px/1.1 var(--f-display);letter-spacing:.03em;text-transform:uppercase}
+.papan-hijau span{font-size:13.5px;color:#D6EFE0}
+.lamp-node{width:24px;height:24px;border-radius:50%;background:var(--aspal-3);justify-self:center;position:relative;z-index:1;box-shadow:0 0 0 4px var(--aspal)}
+.lamp-node.done{background:var(--hijau)}
+.lamp-node.now{background:var(--kuning);animation:denyut 1.8s ease-in-out infinite}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 4px var(--aspal),0 0 0 4px rgba(249,185,27,.0)}50%{box-shadow:0 0 0 4px var(--aspal),0 0 0 10px rgba(249,185,27,.28)}}
+.misi{appearance:none;width:100%;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--aspal-2);color:var(--marka);border:2px solid var(--aspal-3);border-radius:12px;padding:12px 14px;min-height:62px}
+.misi .mt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.misi .mt b{font:700 21px/1.1 var(--f-display);letter-spacing:.03em;text-transform:uppercase}
+.misi .mt small{font-size:13px;color:var(--muda)}
+.misi .ms{font:700 17px/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--kuning);white-space:nowrap}
+.misi.now{border-color:var(--kuning)}
+.misi.done{border-color:#2B6B47}
+.misi.lock{opacity:.55;cursor:not-allowed}
+.misi.lock .ms{color:var(--muda)}
+.bintang{color:var(--kuning);letter-spacing:.06em;font-size:20px}
+.bintang .off{color:#5A6188}
+
+/* misi */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:13.5px;font-weight:700;line-height:1.3;max-width:100%}
+.chip.lv{background:var(--marka);color:var(--rambu)}
+.chip.ok{background:#DDF5E5;color:#0C5A2B}
+.chip.no{background:#E6E9F2;color:var(--abu)}
+.ask{font-size:18px;font-weight:700;color:#fff}
+.parts{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;list-style:lower-alpha;color:#EEF2FF}
+.meter{height:8px;border-radius:4px;background:var(--garis);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--hijau);transition:width .2s}
+.meta{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--abu);font-variant-numeric:tabular-nums}
+.petunjuk{background:#FFF3CC;color:#3C2A00;border-radius:10px;padding:12px 14px;font-size:15px}
+.jawaban{white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;border:2px solid var(--garis);border-radius:10px;padding:12px}
+
+.detektor{display:flex;flex-direction:column;gap:14px}
+.lampu-baris{display:flex;gap:10px;align-items:center}
+.lampu{width:34px;height:34px;border-radius:50%;background:#2A2F45;box-shadow:inset 0 0 0 3px #0E1120;transition:background .2s,box-shadow .2s}
+.lampu.r.on{background:var(--merah);box-shadow:0 0 16px var(--merah)}
+.lampu.k.on{background:var(--kuning);box-shadow:0 0 16px var(--kuning)}
+.lampu.h.on{background:var(--hijau);box-shadow:0 0 16px var(--hijau)}
+.hasil[hidden]{display:none!important}
+.hasil{display:flex;flex-direction:column;gap:12px}
+
+.error{color:#FFB4B0;font-size:14.5px;min-height:1.2em}
+.card .error{color:#B3261E}
+.tersalin{font-size:14px;color:var(--hijau-tua);font-weight:700}
+
+/* guru */
+.tabel-wrap{overflow-x:auto;border-radius:10px;border:2px solid var(--garis);background:#fff}
+table{border-collapse:collapse;width:100%;font-size:14.5px;color:var(--tinta)}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--garis);white-space:nowrap}
+th{font:700 14px/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase;background:#ECEEF5;color:var(--abu)}
+td.num{font-variant-numeric:tabular-nums}
+.lv-btns{display:flex;gap:8px;flex-wrap:wrap}
+.lv-btns button{appearance:none;cursor:pointer;min-height:44px;min-width:44px;padding:0 12px;border-radius:10px;border:2px solid var(--garis);background:#fff;color:var(--tinta);font-weight:700}
+.lv-btns button[aria-pressed=true]{background:var(--rambu);border-color:var(--rambu);color:#fff}
+.lv-btns button.saran{border-style:dashed;border-color:var(--rambu)}
+.ind{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14.5px}
+.ind .y{color:var(--hijau-tua);font-weight:700}
+.ind .n{color:var(--abu)}
+details summary{cursor:pointer;font-weight:700}
+.blok{border-top:2px solid var(--garis);padding-top:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.kstat{font-size:14.5px;font-weight:700;margin:0}
+.kstat.ok{color:var(--hijau-tua)}
+.kstat.wait{color:#8A5A00}
+.kstat.warn{color:#B3261E}
+[hidden]{display:none!important}
+img{max-width:100%}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="config.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ================= PENGATURAN ================= */
+// Nilai berasal dari config.js
+var CFG = window.MKT_CONFIG || {};
+var SETORAN_URL = CFG.SETORAN_URL || "";
+var KUNCI = CFG.KUNCI || "";
+var PIN_GURU = String(CFG.PIN_GURU || "NORMA7").toUpperCase();
+var KEY = "misi-kota-tertib-v1";
+var KEYR = "misi-kota-tertib-rekap-v1";
+
+/* ================= ISI MISI ================= */
+var ZONES = [
+  {id:1, name:"Kampung Insan",      sub:"Sub-bab A · Manusia sebagai makhluk Tuhan, individu, dan sosial"},
+  {id:2, name:"Balai Kaidah",       sub:"Sub-bab B · Pengertian, syarat, dan fungsi norma"},
+  {id:3, name:"Pasar Empat Norma",  sub:"Sub-bab C · Macam-macam norma dan hubungannya"},
+  {id:4, name:"Lorong Pelanggaran", sub:"Sub-bab D · Sebab terjadinya pelanggaran norma"},
+  {id:5, name:"Alun-alun Teladan",  sub:"Sub-bab D · Bertindak sesuai norma di empat lingkungan"}
+];
+
+var MISI = [
+{ id:"m1", zone:1, title:"Poster Tanpa Teman", lv:"C4 · Menganalisis", min:30,
+  scene:"Raka jago menggambar dan bangga pada kemampuannya. Saat kelompoknya mendapat tugas membuat poster tentang norma, ia berkata, “Aku kerjakan sendiri saja. Aku tidak butuh siapa-siapa.” Poster Raka rapi, tetapi datanya kurang dan tidak ada yang siap mempresentasikannya. Teman-temannya pun mulai menjauh.",
+  ask:"Gunakan konsep manusia sebagai makhluk individu dan makhluk sosial untuk menganalisis sikap Raka.",
+  parts:["Apa kelebihan Raka sebagai makhluk individu, dan apa yang tidak mampu ia penuhi sendiri?","Mengapa kodrat manusia sebagai makhluk sosial membuat kerja sama itu perlu?","Nasihat apa yang akan kamu berikan agar Raka dapat bekerja sama tanpa kehilangan ciri khasnya?"],
+  hint:"Manusia itu monodualis: unik sekaligus tidak bisa hidup sendiri. Cari bagian cerita yang menunjukkan masing-masing sisi itu.",
+  ind:[
+   {l:"Menyebut kelebihan atau ciri khas Raka sebagai individu", p:/individu|ciri khas|bakat|kelebihan|menggambar|unik|kemampuan/i},
+   {l:"Menjelaskan manusia tidak bisa memenuhi kebutuhan sendirian", p:/tidak (bisa|mampu|dapat) (hidup |memenuhi |mengerjakan |menyelesaikan )?sendiri|saling (membutuhkan|bergantung|melengkapi)|butuh (orang lain|teman|bantuan)|ketergantungan|membutuhkan/i},
+   {l:"Menunjuk keterbatasan Raka (data, presentasi)", p:/keterbatasan|kekurangan|data|presentasi|tidak (sempurna|lengkap)|secerdas/i},
+   {l:"Mengaitkan dengan kodrat sosial dan kerja sama", p:/kodrat|interaksi|kerja ?sama|bekerja ?sama|makhluk sosial/i},
+   {l:"Memberi saran yang konkret", p:/saran|nasihat|sebaiknya|seharusnya|lebih baik|bagi tugas|membagi|musyawarah|mendengar|bergabung|libatkan|ajak|minta maaf/i}
+  ]},
+{ id:"m2", zone:1, title:"Tiga Kata yang Dianggap Sepele", lv:"C5 · Mengevaluasi", min:30,
+  scene:"Di SMP Persatuan Bangsa, Ika terbiasa berkata “tolong”, “terima kasih”, dan “maaf”. Suatu hari Bagas menyindir, “Kata-kata begitu sepele, tidak ada gunanya. Yang penting nilai bagus!” Beberapa teman tertawa. Ika terdiam, lalu bertanya kepadamu sebagai teman yang ia percaya.",
+  ask:"Nilailah pendapat Bagas: apakah tiga kata itu benar-benar sepele? Pertahankan penilaianmu dengan alasan.",
+  parts:["Apa dampak masing-masing kata terhadap hubungan antarmanusia di masyarakat?","Mengapa mengucapkan maaf justru menunjukkan keberanian, bukan kelemahan?","Berikan satu contoh nyata di sekolah yang berubah karena kata-kata itu."],
+  hint:"Kebiasaan kecil dapat mempererat persaudaraan. Bayangkan apa yang terjadi di kelas jika tiga kata itu hilang.",
+  ind:[
+   {l:"Menjelaskan fungsi “tolong” (saling membantu)", p:/tolong|bantu|bantuan/i},
+   {l:"Menjelaskan fungsi “terima kasih” (menghargai, bersyukur)", p:/terima kasih|menghargai|penghargaan|bersyukur|syukur/i},
+   {l:"Menjelaskan maaf sebagai keberanian mengakui kesalahan", p:/mengakui kesalahan|berani|keberanian|bukan (berarti )?(menunjukkan )?lemah|tidak (menunjukkan )?lemah|bertanggung jawab|jiwa besar/i},
+   {l:"Menyimpulkan dampak bagi hubungan dan masyarakat", p:/mempererat|persaudaraan|hubungan|akrab|harmonis|rukun|damai|dampak positif|nyaman|saling menghormati/i},
+   {l:"Memberi contoh nyata dan menilai pendapat Bagas", p:/misalnya|contohnya|contoh|ketika|sewaktu|di kelas|di sekolah|tidak setuju|keliru|kurang tepat|salah/i}
+  ]},
+{ id:"m3", zone:2, title:"Satu Hari Tanpa Aturan", lv:"C4 · Menganalisis", min:30,
+  scene:"Bayangkan kepala sekolah mengumumkan: besok, selama jam istirahat, semua aturan dihentikan. Tidak ada antre di kantin, tidak ada batas tempat duduk, tidak ada larangan apa pun. Kantin sekolahmu sempit, jajanan terbatas, dan bel istirahat baru saja berbunyi.",
+  ask:"Telusuri apa yang mungkin terjadi, lalu simpulkan mengapa masyarakat memerlukan norma.",
+  parts:["Kebutuhan siapa saja yang bertabrakan, dan apa akibatnya jika perselisihan itu dibiarkan?","Siapa yang paling dirugikan dalam situasi tanpa aturan itu, dan mengapa?","Rumuskan dengan kalimatmu sendiri: bagaimana norma membuat kebutuhan semua orang terpenuhi secara selaras?"],
+  hint:"Kebutuhan antarmanusia tidak selalu sama dan terus berubah. Bayangkan rebutan jajanan, lalu lanjutkan sampai akibat terburuknya.",
+  ind:[
+   {l:"Menyebut kebutuhan berbeda yang saling berebut", p:/kebutuhan|kepentingan|berebut|rebutan|saling dorong|berdesakan|desak|serobot|menyerobot|rebut/i},
+   {l:"Menyebut perselisihan atau konflik", p:/perselisihan|bertengkar|berkelahi|konflik|ribut|cekcok|perkelahian/i},
+   {l:"Menyebut akibat bagi kelompok (perpecahan, tidak tertib, tidak aman)", p:/perpecahan|tidak (tertib|aman|tenteram|damai)|kacau|kekacauan|terpecah|cedera|terluka|jatuh/i},
+   {l:"Menunjuk pihak yang paling dirugikan beserta alasannya", p:/paling (dirugikan|lemah)|adik kelas|yang lemah|kalah|tidak kebagian|kebagian|lebih lemah|yang kecil/i},
+   {l:"Menjelaskan norma membatasi perilaku agar kebutuhan terpenuhi selaras", p:/membatasi|batas|selaras|tanpa (merugikan|mengganggu)|tidak merugikan|tidak mengganggu|adil|keadilan|pedoman|tertib|teratur/i}
+  ]},
+{ id:"m4", zone:2, title:"Aturan yang Tidak Digubris", lv:"C5 · Mengevaluasi", min:30,
+  scene:"Wali kelas 7C menempelkan kertas di dinding: “Kelas harus tenang.” Tidak ada penjelasan batas tenang itu seperti apa, tidak ada konsekuensi bagi yang ribut, dan ketua kelas yang sering mengobrol tidak pernah ditegur, sementara murid lain dipanggil. Seminggu kemudian kelas tetap gaduh dan wali kelas kecewa karena merasa anak-anak tidak patuh.",
+  ask:"Evaluasi aturan itu memakai syarat berlakunya norma, lalu beri rekomendasi perbaikan.",
+  parts:["Syarat norma mana yang sudah ada dan mana yang belum terpenuhi? Jelaskan buktinya dari cerita.","Fungsi norma apa yang gagal berjalan (misalnya keadilan atau pengendali perilaku)? Mengapa?","Tuliskan versi perbaikan aturan itu (perintah, larangan, sanksi) beserta cara agar semua murid mengetahuinya."],
+  hint:"Syarat norma: perintah, larangan, sanksi, serta bersifat mengikat dan memaksa. Cek satu per satu pada cerita.",
+  ind:[
+   {l:"Mengenali perintah atau larangan yang ada tetapi tidak jelas", p:/perintah|larangan|tenang|tidak jelas|multitafsir|kabur|batas/i},
+   {l:"Menyebut sanksi belum ada", p:/sanksi|hukuman|konsekuensi|tidak ada akibat|tidak diberi/i},
+   {l:"Menyebut sifat mengikat dan berlaku untuk semua (ketua kelas tidak ditegur)", p:/mengikat|memaksa|semua (murid|siswa|orang|anggota)|ketua kelas|pilih kasih|tebang pilih|berlaku sama|tidak adil|keadilan/i},
+   {l:"Mengaitkan dengan fungsi norma yang gagal", p:/fungsi|pengendali|penuntun|pedoman|keadilan|ketertiban|mengendalikan/i},
+   {l:"Menulis rekomendasi perbaikan yang konkret (aturan baru dan sosialisasi)", p:/sosialisasi|diumumkan|disepakati|kesepakatan|dijelaskan|ditempel|perbaikan|sebaiknya|seharusnya|rekomendasi|usul/i}
+  ]},
+{ id:"m5", zone:3, title:"Dompet di Bangku Taman", lv:"C4 · Menganalisis", min:30,
+  scene:"Sepulang sekolah, Tegar menemukan dompet di bangku Taman Bungkul. Isinya uang tunai dan kartu pelajar milik kakak kelas dari sekolah lain. Taman sedang sepi. Tegar membatin, “Uangnya cukup untuk beli sepatu baru. Tidak ada yang lihat, kan?”",
+  ask:"Analisis keputusan Tegar jika ia mengambil uang itu, memakai keempat macam norma.",
+  parts:["Sebutkan sanksi yang akan ia terima dari norma agama, kesusilaan, kesopanan, dan hukum.","Mengapa sanksi dari tiga norma pertama sering kurang membuat jera, sehingga norma hukum diperlukan?","Jika kamu menjadi Tegar, langkah apa yang kamu ambil, dan norma mana yang kamu jaga dengan langkah itu?"],
+  hint:"Bedakan sumber dan sanksi tiap norma: dosa, perasaan bersalah, cemoohan, dan hukuman tegas yang tertulis.",
+  ind:[
+   {l:"Norma agama: sanksinya dosa", p:/dosa|norma agama|kitab suci|tuhan/i},
+   {l:"Norma kesusilaan: rasa bersalah, malu, hati nurani", p:/hati nurani|bersalah|malu|menyesal|kesusilaan|suara hati/i},
+   {l:"Norma kesopanan: dikucilkan, dicemooh, ditegur", p:/dikucilkan|dicemooh|ditegur|dijauhi|cemooh|sanksi sosial|kesopanan|digunjing|dipermalukan/i},
+   {l:"Norma hukum: hukuman tegas dan tertulis", p:/pidana|penjara|denda|hukuman|polisi|ditangkap|pencurian|kuhp|norma hukum/i},
+   {l:"Menjelaskan mengapa hukum melengkapi norma lain", p:/efek jera|jera|tegas|langsung|melengkapi|tidak (bisa|dapat) (langsung )?dirasakan|diimbangi|memaksa/i},
+   {l:"Menyebut langkah nyata menjaga norma (mengembalikan, melapor)", p:/mengembalikan|melapor|lapor|petugas|menyerahkan|dikembalikan|kembalikan|menghubungi/i}
+  ]},
+{ id:"m6", zone:3, title:"Tiga Laporan di Meja Piket", lv:"C5 · Mengevaluasi", min:35,
+  scene:"Guru piket menerima tiga laporan. (1) Dani memakai seragam batik pada hari Senin, padahal jadwalnya putih biru, dan rambutnya sudah melewati alis. (2) Nina berjalan melewati sekumpulan bapak-bapak yang sedang berbincang tanpa mengucapkan “permisi” dan menyenggol kursi mereka. (3) Yoga yang berusia 13 tahun berangkat ke sekolah naik sepeda motor dan belum memiliki SIM.",
+  ask:"Bantu guru piket menentukan norma yang dilanggar pada tiap laporan dan memberi penanganan yang tepat.",
+  parts:["Tentukan norma yang dilanggar pada laporan 1, 2, dan 3, lengkap dengan alasanmu.","Laporan mana yang sanksinya paling tegas dan mengikat? Jelaskan siapa yang berwenang membuat aturannya.","Menurutmu, penanganan seperti apa yang mendidik untuk masing-masing anak, bukan sekadar menghukum?"],
+  hint:"Tata tertib sekolah dibuat pihak yang berwenang dan tertulis. Pikirkan norma mana yang tertulis dan mengikat, dan norma mana yang berupa kebiasaan sopan.",
+  ind:[
+   {l:"Laporan 1 (seragam dan rambut) tepat dikaitkan dengan norma hukum/tata tertib", p:/(seragam|rambut|dani)[\s\S]{0,140}(hukum|tata tertib)|(hukum|tata tertib)[\s\S]{0,140}(seragam|rambut|dani)/i},
+   {l:"Laporan 2 (tanpa permisi) tepat dikaitkan dengan norma kesopanan", p:/(permisi|nina|bapak)[\s\S]{0,140}(kesopanan|sopan|tata krama)|(kesopanan|sopan|tata krama)[\s\S]{0,140}(permisi|nina|bapak)/i},
+   {l:"Laporan 3 (motor tanpa SIM) tepat dikaitkan dengan norma hukum", p:/(sim|motor|yoga)[\s\S]{0,140}(hukum|undang|lalu lintas)|(hukum|undang|lalu lintas)[\s\S]{0,140}(sim|motor|yoga)/i},
+   {l:"Menyebut pihak berwenang pembuat aturan", p:/berwenang|kepala sekolah|kesiswaan|komite|pemerintah|dpr|negara|lembaga|polisi/i},
+   {l:"Mengusulkan penanganan yang mendidik", p:/mendidik|pembinaan|bimbingan|konseling|menasihati|nasihat|memanggil orang tua|teguran|edukasi|diajak|dijelaskan/i}
+  ]},
+{ id:"m7", zone:4, title:"Dua Anak, Satu Sanksi", lv:"C4 · Menganalisis", min:35,
+  scene:"Di sebuah SMP, banyak murid terlambat. Sanksinya hanya menulis nama di buku catatan. Bima terlambat karena harus mengantar adiknya ke SD lebih dulu dan tidak ada orang lain di rumah. Nando terlambat karena sengaja bersantai. Katanya, “Paling cuma disuruh nulis nama.” Minggu ini 15 murid terlambat. Guru kesiswaan berencana menambah sanksi untuk semua murid sekaligus.",
+  ask:"Analisis penyebab pelanggaran pada Bima dan Nando, lalu nilai apakah rencana guru kesiswaan sudah tepat.",
+  parts:["Dari enam penyebab pelanggaran norma di buku, mana yang paling sesuai untuk Bima dan untuk Nando? Beri alasan.","Mengapa sanksi yang sama untuk semua belum tentu menyelesaikan masalah?","Rancang penanganan yang berbeda untuk Bima dan untuk Nando."],
+  hint:"Penyebabnya antara lain: kurang kendali diri, terbiasa melanggar, kurang sosialisasi, tekanan keadaan, rendahnya kesadaran, dan menurunnya persatuan. Pasangkan dengan fakta dalam cerita.",
+  ind:[
+   {l:"Bima: tekanan atau keadaan, bukan kesengajaan", p:/tekanan|terpaksa|keadaan|tuntutan|desakan|tidak ada pilihan|mengantar|adik/i},
+   {l:"Nando: terbiasa melanggar atau kesadaran rendah", p:/terbiasa|kebiasaan|sengaja|tidak (jera|takut)|kesadaran|meremehkan|menyepelekan/i},
+   {l:"Menjelaskan sanksi yang sama kurang efektif", p:/jera|ringan|tidak efektif|tidak adil|disamaratakan|sama rata|tidak membedakan|percuma|diulang/i},
+   {l:"Menilai rencana guru dengan alasan", p:/rencana|menambah sanksi|tidak (tepat|setuju)|kurang tepat|belum tepat|setuju|keliru/i},
+   {l:"Merancang penanganan berbeda untuk kedua anak", p:/konseling|bimbingan|pembinaan|dialog|ditanya|mendengar|keringanan|dispensasi|izin|orang tua|solusi|kesepakatan/i}
+  ]},
+{ id:"m8", zone:4, title:"Video yang Terlanjur Viral", lv:"C5 · Mengevaluasi", min:35,
+  scene:"Rani merekam temannya, Dika, yang tersandung saat upacara, lalu mengunggahnya ke media sosial dengan tulisan mengejek. Dalam sehari videonya ditonton ribuan orang dan Dika tidak mau masuk sekolah. Rani berkata, “Aku cuma iseng, semua orang juga begitu.” Sekolah menyita ponsel Rani selama sebulan.",
+  ask:"Evaluasi apakah penanganan sekolah sudah menyentuh akar masalah.",
+  parts:["Norma apa saja yang dilanggar Rani? Jelaskan dampaknya bagi Dika dan masyarakat.","Penyebab pelanggaran apa yang tampak pada kalimat “semua orang juga begitu”?","Selain menyita ponsel, langkah apa yang perlu dilakukan agar Rani paham dan kejadian serupa tidak terulang?"],
+  hint:"Pikirkan norma kesopanan, kesusilaan, dan mungkin hukum. Lalu tanyakan: apakah menyita ponsel mengubah cara berpikir Rani?",
+  ind:[
+   {l:"Menyebut norma yang dilanggar (kesopanan, kesusilaan, hukum)", p:/kesopanan|kesusilaan|norma hukum|tata krama|etika|hati nurani|merugikan/i},
+   {l:"Menjelaskan dampak bagi korban dan masyarakat", p:/malu|trauma|tertekan|sedih|tidak mau masuk|dirundung|bullying|perundungan|dampak|korban|nama baik/i},
+   {l:"Mengenali penyebab (ikut-ikutan, kesadaran rendah, kurang kendali diri)", p:/ikut-ikutan|ikutan|kesadaran|kendali diri|mengendalikan diri|tekanan|lingkungan|menyepelekan|meremehkan|dianggap biasa/i},
+   {l:"Menilai sanksi menyita ponsel", p:/menyita|sanksi|hukuman|jera|belum cukup|tidak cukup|sementara/i},
+   {l:"Mengusulkan pemulihan dan pencegahan", p:/minta maaf|meminta maaf|menghapus|literasi|edukasi|sosialisasi|konseling|bimbingan|pembinaan|mediasi|menghargai|empati|pemulihan/i}
+  ]},
+{ id:"m9", zone:5, title:"Pagar Belakang", lv:"C5 · Mengambil keputusan", min:35,
+  scene:"Kamu ketua kelas. Saat jam kosong, tiga temanmu mengajak, “Pulang lewat pagar belakang saja, tidak ada yang lihat. Sekali ini saja!” Sebagian besar teman sekelas ikut bergerak. Salah satu dari mereka berbisik, “Kalau kamu menolak, kamu dianggap sok suci dan kami jauhi, ya.”",
+  ask:"Ambil keputusan sebagai pemimpin bagi dirimu dan orang lain, lalu pertanggungjawabkan.",
+  parts:["Keputusan apa yang kamu ambil? Norma apa saja yang terlibat jika kamu ikut atau menolak?","Pertimbangkan akibat bagi dirimu, teman-temanmu, dan sekolah. Mana yang kamu utamakan, dan mengapa?","Tuliskan kalimat yang akan kamu ucapkan untuk menolak ajakan itu tanpa memutus pertemanan."],
+  hint:"Pemimpin berani bertindak sesuai norma meski ditekan. Pikirkan juga ajakan alternatif yang membuat temanmu tetap merasa dihargai.",
+  ind:[
+   {l:"Menyatakan keputusan dengan jelas", p:/(aku|saya) (akan )?(menolak|tidak (ikut|akan ikut|mau)|memilih)|keputusanku|keputusan saya|menolak/i},
+   {l:"Menyebut norma yang terlibat (tata tertib, kejujuran, hukum)", p:/tata tertib|norma|aturan|kejujuran|jujur|hukum|kesusilaan|disiplin/i},
+   {l:"Mempertimbangkan akibat bagi diri, teman, dan sekolah", p:/akibat|sanksi|konsekuensi|dihukum|dipanggil|risiko|bahaya|nama baik|keselamatan|orang tua/i},
+   {l:"Menunjukkan keberanian memimpin di bawah tekanan teman", p:/berani|pemimpin|teladan|contoh|tekanan|tidak takut|prinsip|konsisten|dijauhi/i},
+   {l:"Menulis kalimat penolakan yang santun dan menawarkan alternatif", p:/"|“|kita (bisa|tunggu|minta)|bagaimana kalau|ayo|yuk|daripada|alternatif|minta izin/i}
+  ]},
+{ id:"m10", zone:5, title:"Rancang Aksi Teladan", lv:"C6 · Mencipta", min:50,
+  scene:"Wali Kota Tertib mengumumkan sayembara “Seminggu Teladan”. Setiap Pemimpin Muda diminta memilih satu lingkungan (keluarga, sekolah, masyarakat, atau bangsa dan negara) dan merancang aksi nyata selama seminggu agar warganya lebih patuh pada norma.",
+  ask:"Rancang aksi yang benar-benar bisa kamu pimpin.",
+  parts:["Lingkungan mana yang kamu pilih, masalah pelanggaran norma apa yang kamu temukan, dan apa penyebabnya?","Tuliskan minimal tiga langkah aksi (urut dari hari pertama), siapa yang kamu libatkan, dan norma apa yang kamu jaga.","Bagaimana kamu mengetahui aksimu berhasil, dan apa yang kamu lakukan jika masih ada yang melanggar?"],
+  hint:"Mulailah dari masalah nyata di sekitarmu, bukan masalah umum. Langkah yang baik spesifik: siapa, melakukan apa, kapan.",
+  ind:[
+   {l:"Memilih lingkungan dan merumuskan masalah nyata", p:/keluarga|sekolah|masyarakat|kampung|rt|rw|bangsa|negara/i},
+   {l:"Menyebut penyebab masalah", p:/penyebab|karena|disebabkan|sebab|kurang|kebiasaan/i},
+   {l:"Menyusun beberapa langkah konkret", p:/pertama|kedua|ketiga|langkah|hari pertama|hari ke|(^|\n)\s*[1-3][\).]|\n\s*[-•]/i},
+   {l:"Melibatkan pihak lain", p:/teman|guru|orang tua|ketua|kader|osis|warga|kelompok|bersama|libatkan/i},
+   {l:"Menetapkan tanda keberhasilan", p:/berhasil|ukur|mengukur|target|jumlah|berkurang|catat|daftar|evaluasi|cek|memantau|indikator/i},
+   {l:"Menyiapkan tindak lanjut bagi yang masih melanggar", p:/sanksi|teguran|menegur|ditegur|pembinaan|mengingatkan|menasihati|teladan|penghargaan|apresiasi|konsekuensi/i}
+  ]}
+];
+
+var LEVELS = {
+  4:["Sangat baik","Menjawab semua bagian dengan alasan logis, memakai konsep Bab 3 dengan tepat, dan memberi contoh atau langkah konkret."],
+  3:["Baik","Menjawab sebagian besar bagian dengan alasan yang cukup jelas dan konsep yang umumnya tepat."],
+  2:["Cukup","Menjawab sebagian bagian; alasan masih umum atau konsep belum sepenuhnya tepat."],
+  1:["Perlu bimbingan","Jawaban sangat singkat, tidak relevan, atau belum memakai konsep Bab 3."]
+};
+
+/* ================= UTILITAS ================= */
+var app = document.getElementById("app");
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function words(t){return (String(t).match(/\S+/g)||[]).length;}
+function byId(id){for(var i=0;i<MISI.length;i++){if(MISI[i].id===id)return MISI[i];}return null;}
+function idx(id){for(var i=0;i<MISI.length;i++){if(MISI[i].id===id)return i;}return -1;}
+function hits(m,text){return m.ind.map(function(i){return i.p.test(String(text).toLowerCase());});}
+function count(a){return a.filter(Boolean).length;}
+function bintang(n){var s='<span class="bintang" aria-label="'+n+' dari 3 bintang">';for(var i=0;i<3;i++){s+=i<n?'★':'<span class="off">★</span>';}return s+'</span>';}
+function starsFor(m,h,hint){var r=count(h)/m.ind.length;var s=r>=0.7?3:(r>=0.4?2:1);if(hint)s=Math.max(1,s-1);return s;}
+function saranLevel(m,h){var r=count(h)/m.ind.length;return r>=0.8?4:(r>=0.6?3:(r>=0.4?2:1));}
+function rank(n){return n>=26?"Pemimpin Teladan":(n>=20?"Kepala Ketertiban":(n>=13?"Petugas Tertib":"Warga Belajar"));}
+function b64(s){return btoa(unescape(encodeURIComponent(s)));}
+function unb64(s){return decodeURIComponent(escape(atob(s)));}
+function reduced(){try{return window.matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){return false;}}
+function scrollTop(){try{window.scrollTo(0,0);}catch(e){}}
+
+var S = load();
+function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.a)return o;}}catch(e){}return {p:null,a:{},d:{},hu:{}};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function totalStars(){var n=0;for(var k in S.a){n+=S.a[k].s||0;}return n;}
+function doneCount(){return MISI.filter(function(m){return S.a[m.id];}).length;}
+function nextMission(){for(var i=0;i<MISI.length;i++){if(!S.a[MISI[i].id])return MISI[i];}return null;}
+
+function topbar(){
+  var d=doneCount(),bars="";
+  for(var i=0;i<MISI.length;i++){bars+='<i class="'+(i<d?'on':'')+'"></i>';}
+  return '<div class="top"><span class="brand">Misi Kota Tertib</span><span class="skor" aria-label="Bintang terkumpul">★ '+totalStars()+' / '+(MISI.length*3)+'</span></div><div class="marka-bar" role="img" aria-label="'+d+' dari '+MISI.length+' misi selesai">'+bars+'</div>';
+}
+
+/* ================= LAYAR AWAL ================= */
+function renderStart(){
+  scrollTop();
+  var lanjut = S.p ? '<div class="card"><h3>Selamat datang kembali, '+esc(S.p.n)+'</h3><p class="muted">'+doneCount()+' dari '+MISI.length+' misi sudah kamu kirim. Jawabanmu tersimpan di perangkat ini.</p><div class="row"><button class="btn" id="lanjut">Lanjutkan misi</button><button class="btn ghost small" id="ulang" style="color:var(--tinta);box-shadow:inset 0 0 0 2px #9AA0B8">Mulai ulang</button></div><p class="error" id="ulang-msg" role="status"></p></div>' : '';
+  var form = S.p ? '' :
+    '<form class="card" id="form" novalidate>'+
+      '<h3>Daftar sebagai Pemimpin Muda</h3>'+
+      '<div><label for="nama">Nama lengkap</label><input type="text" id="nama" autocomplete="off" maxlength="60"></div>'+
+      '<div class="grid2"><div><label for="kelas">Kelas</label><input type="text" id="kelas" placeholder="contoh: 7I" autocomplete="off" maxlength="10"></div>'+
+      '<div><label for="absen">No. absen</label><input type="text" id="absen" inputmode="numeric" autocomplete="off" maxlength="3"></div></div>'+
+      '<p class="error" id="form-err" role="alert"></p>'+
+      '<button class="btn" type="submit">Mulai misi</button>'+
+    '</form>';
+  app.innerHTML =
+    '<div class="top"><span class="brand">Pendidikan Pancasila · Kelas VII</span></div>'+
+    '<section class="sign"><div class="hero"><svg class="lampu-svg" viewBox="0 0 64 150" aria-hidden="true"><rect x="4" y="4" width="56" height="142" rx="16" fill="#0E1120" stroke="#8FA6E8" stroke-width="3"/><circle class="l-r" cx="32" cy="38" r="15"/><circle class="l-k" cx="32" cy="77" r="15"/><circle class="l-h" cx="32" cy="116" r="15"/></svg>'+
+    '<div><span class="lab">Asesmen sumatif · Bab 3 Patuh Terhadap Norma</span><h1>Misi Kota Tertib</h1></div></div>'+
+    '<p>Kota Tertib kehilangan keteraturannya. Kamu dilantik menjadi Pemimpin Muda. Selesaikan 10 misi di 5 wilayah dengan nalar, alasan, dan contoh nyata. Tidak ada pilihan ganda: yang dinilai adalah caramu berpikir.</p></section>'+
+    lanjut+form+
+    '<section class="card"><span class="lab">Tata tertib misi</span><ul class="tertib">'+
+      '<li><b>Perintah</b><span>Jawab setiap bagian pertanyaan dengan kalimatmu sendiri, lengkap dengan alasan dan contoh.</span></li>'+
+      '<li><b>Larangan</b><span>Jangan menyalin jawaban teman atau dari sumber lain.</span></li>'+
+      '<li><b>Sanksi</b><span>Jawaban yang sama persis dengan milik temanmu akan diperiksa ulang dan dapat dinilai ulang oleh guru.</span></li>'+
+      '<li><b>Mengikat</b><span>Berlaku untuk semua pemain. Jawaban yang sudah dikirim tidak dapat diubah.</span></li>'+
+    '</ul><p class="muted">Bintang dan Detektor Nalar hanyalah permainan. Nilai resmi diberikan guru memakai rubrik.</p></section>'+
+    '<p class="muted" style="font-size:14px"><a href="#guru">Masuk sebagai guru</a></p>';
+  var f=document.getElementById("form");
+  if(f){f.addEventListener("submit",function(e){
+    e.preventDefault();
+    var n=document.getElementById("nama").value.trim(),k=document.getElementById("kelas").value.trim(),a=document.getElementById("absen").value.trim();
+    var err=document.getElementById("form-err");
+    if(n.length<3){err.textContent="Tulis nama lengkapmu dulu (minimal 3 huruf).";return;}
+    if(!k){err.textContent="Tulis kelasmu, misalnya 7I.";return;}
+    if(!a){err.textContent="Tulis nomor absenmu.";return;}
+    S.p={n:n,k:k,a:a};save();renderMap();
+  });}
+  var l=document.getElementById("lanjut");if(l)l.addEventListener("click",function(){doneCount()>=MISI.length?renderFinal():renderMap();});
+  var u=document.getElementById("ulang");
+  if(u){var armed=false;u.addEventListener("click",function(){
+    var msg=document.getElementById("ulang-msg");
+    if(!armed){armed=true;u.textContent="Yakin? Semua jawaban dihapus";msg.textContent="Tekan sekali lagi untuk menghapus jawaban di perangkat ini.";return;}
+    S={p:null,a:{},d:{},hu:{}};save();renderStart();
+  });}
+}
+
+/* ================= PETA ================= */
+function renderMap(){
+  scrollTop();
+  var nxt=nextMission(),rows="";
+  ZONES.forEach(function(z){
+    rows+='<div class="baris zona-h"><div class="rambu-no" aria-label="Wilayah '+z.id+'">'+z.id+'</div><div class="papan-hijau"><b>'+esc(z.name)+'</b><span>'+esc(z.sub)+'</span></div></div>';
+    MISI.filter(function(m){return m.zone===z.id;}).forEach(function(m){
+      var a=S.a[m.id],st=a?"done":(nxt&&nxt.id===m.id?"now":"lock");
+      rows+='<div class="baris"><span class="lamp-node '+st+'"></span><button class="misi '+st+'" data-m="'+m.id+'"'+(st==="lock"?' disabled':'')+'>'+
+        '<span class="mt"><b>'+esc(m.title)+'</b><small>Misi '+(idx(m.id)+1)+' · '+esc(m.lv)+'</small></span>'+
+        '<span class="ms">'+(a?bintang(a.s):(st==="now"?"Mulai ▸":"Terkunci"))+'</span></button></div>';
+    });
+  });
+  var fin = doneCount()>=MISI.length ? '<button class="btn amber" id="laporan">Lihat laporan akhir</button>' : '';
+  app.innerHTML = topbar()+
+    '<div class="sign"><span class="lab">Pemimpin Muda</span><h2>'+esc(S.p.n)+'</h2><p>Kelas '+esc(S.p.k)+' · '+doneCount()+' dari '+MISI.length+' misi terkirim. Selesaikan misi berlampu kuning untuk membuka jalan berikutnya.</p></div>'+
+    fin+'<div class="jalan">'+rows+'</div>'+
+    '<div class="row"><button class="btn ghost small" id="beranda">Halaman awal</button></div>';
+  app.querySelectorAll(".misi:not(.lock)").forEach(function(b){b.addEventListener("click",function(){renderMission(b.getAttribute("data-m"));});});
+  var l=document.getElementById("laporan");if(l)l.addEventListener("click",renderFinal);
+  document.getElementById("beranda").addEventListener("click",renderStart);
+}
+
+/* ================= MISI ================= */
+function missionHead(m){
+  var z=ZONES[m.zone-1];
+  return '<div class="top"><button class="btn ghost small" id="kembali">← Peta</button><span class="skor">Misi '+(idx(m.id)+1)+' / '+MISI.length+'</span></div>'+
+    '<section class="sign"><span class="lab">Wilayah '+z.id+' · '+esc(z.name)+'</span><h2>'+esc(m.title)+'</h2><div class="chips"><span class="chip lv">'+esc(m.lv)+'</span></div></section>'+
+    '<section class="card"><span class="lab">Laporan lapangan</span><p>'+esc(m.scene)+'</p></section>'+
+    '<section class="sign"><span class="lab">Tugas pemimpin</span><p class="ask">'+esc(m.ask)+'</p><ol class="parts">'+m.parts.map(function(p){return '<li>'+esc(p)+'</li>';}).join("")+'</ol></section>';
+}
+function renderMission(id){
+  scrollTop();
+  var m=byId(id),a=S.a[id];
+  if(a){renderResult(m,false);return;}
+  var draft=S.d[id]||"";
+  app.innerHTML = missionHead(m)+
+    '<section class="card"><label for="jwb">Jawabanmu</label>'+
+    '<textarea id="jwb" placeholder="Tulis jawabanmu di sini. Jelaskan alasanmu dan beri contoh."></textarea>'+
+    '<div class="meter" aria-hidden="true"><i id="meter"></i></div>'+
+    '<div class="meta"><span id="hitung" role="status">0 / '+m.min+' kata</span><span>Minimal '+m.min+' kata</span></div>'+
+    '<div id="petunjuk-box"></div>'+
+    '<p class="error" id="err" role="alert"></p>'+
+    '<div class="row"><button class="btn" id="kirim" disabled>Kirim jawaban</button><button class="btn amber small" id="petunjuk">Lampu petunjuk</button></div>'+
+    '<p class="muted" style="font-size:14px">Setelah dikirim, jawaban terkunci. Petunjuk mengurangi 1 bintang permainan, tidak memengaruhi nilai dari guru.</p></section>';
+  var ta=document.getElementById("jwb"),kirim=document.getElementById("kirim");
+  ta.value=draft;
+  function upd(){
+    var w=words(ta.value);
+    document.getElementById("hitung").textContent=w+" / "+m.min+" kata";
+    document.getElementById("meter").style.width=Math.min(100,Math.round(w/m.min*100))+"%";
+    kirim.disabled=w<m.min;
+  }
+  upd();
+  var tm=null;
+  ta.addEventListener("input",function(){upd();clearTimeout(tm);tm=setTimeout(function(){S.d[id]=ta.value;save();},400);});
+  function showHint(){document.getElementById("petunjuk-box").innerHTML='<div class="petunjuk"><b>Petunjuk:</b> '+esc(m.hint)+'</div>';document.getElementById("petunjuk").hidden=true;}
+  if(S.hu[id])showHint();
+  document.getElementById("petunjuk").addEventListener("click",function(){S.hu[id]=1;save();showHint();});
+  document.getElementById("kembali").addEventListener("click",function(){S.d[id]=ta.value;save();renderMap();});
+  kirim.addEventListener("click",function(){
+    var t=ta.value.trim();
+    if(words(t)<m.min){document.getElementById("err").textContent="Jawabanmu belum mencapai "+m.min+" kata.";return;}
+    var h=hits(m,t),hint=S.hu[id]?1:0;
+    S.a[id]={x:t,h:hint,hits:h,s:starsFor(m,h,hint),t:Date.now()};
+    delete S.d[id];S.pend=true;save();
+    renderResult(m,true);
+    kirimHasil();
+  });
+}
+
+function renderResult(m,animate){
+  scrollTop();
+  var a=S.a[m.id],last=doneCount()>=MISI.length,nxt=nextMission();
+  var chips=m.ind.map(function(i,k){return a.hits[k]?'<span class="chip ok">✓ '+esc(i.l)+'</span>':'<span class="chip no">? Sudut pandang tersembunyi</span>';}).join("");
+  var pesan=a.s===3?"Nalar tajam! Jawabanmu menyentuh hampir semua sudut pandang.":(a.s===2?"Jalan sudah benar. Masih ada sudut pandang yang belum kamu sentuh.":"Awal yang baik. Baca lagi bagian materi Bab 3 yang terkait sebelum misi berikutnya.");
+  app.innerHTML = missionHead(m)+
+    '<section class="card"><span class="lab">Jawabanmu (terkunci)</span><div class="jawaban">'+esc(a.x)+'</div><p class="kstat" id="kstat" role="status"></p></section>'+
+    '<section class="sign detektor"><span class="lab">Detektor Nalar</span>'+
+    '<div class="lampu-baris" aria-hidden="true"><span class="lampu r"></span><span class="lampu k"></span><span class="lampu h"></span></div>'+
+    '<div class="hasil" id="hasil" '+(animate&&!reduced()?'hidden':'')+'>'+
+      '<div>'+bintang(a.s)+' <span style="font:700 20px var(--f-display);letter-spacing:.04em;text-transform:uppercase;margin-left:6px">'+a.s+' bintang permainan</span></div>'+
+      '<p>'+pesan+'</p><div class="chips">'+chips+'</div>'+
+      '<p class="muted" style="font-size:14px">Detektor hanya mencari kata kunci. Guru akan menilai isi jawabanmu dengan rubrik.</p>'+
+      '<div class="row">'+(last?'<button class="btn amber" id="akhir">Lihat laporan akhir</button>':(nxt?'<button class="btn" id="lanjut-m">Misi berikutnya</button>':''))+'<button class="btn ghost small" id="peta">Kembali ke peta</button></div>'+
+    '</div></section>';
+  document.getElementById("kembali").addEventListener("click",renderMap);
+  document.getElementById("peta").addEventListener("click",renderMap);
+  var x=document.getElementById("akhir");if(x)x.addEventListener("click",renderFinal);
+  var y=document.getElementById("lanjut-m");if(y)y.addEventListener("click",function(){renderMission(nxt.id);});
+  var ls=app.querySelectorAll(".lampu");
+  if(animate&&!reduced()){
+    ls[0].classList.add("on");
+    setTimeout(function(){ls[0].classList.remove("on");ls[1].classList.add("on");},650);
+    setTimeout(function(){ls[1].classList.remove("on");ls[2].classList.add("on");var h=document.getElementById("hasil");if(h)h.hidden=false;},1300);
+  }else{ls[2].classList.add("on");}
+  refreshStatus();
+}
+
+/* ================= LAPORAN AKHIR ================= */
+function paket(){
+  var r={},hint=0;
+  MISI.forEach(function(m){var a=S.a[m.id];if(a){r[m.id]={x:a.x,h:a.h,s:a.s,g:saranLevel(m,a.hits)};hint+=a.h?1:0;}});
+  return {v:1,n:S.p.n,k:S.p.k,a:S.p.a||"",t:Date.now(),stars:totalStars(),hint:hint,r:r};
+}
+function kodeHasil(){return "MKT1."+b64(JSON.stringify(paket()));}
+function teksHasil(){
+  var p=S.p,t="MISI KOTA TERTIB - Hasil asesmen sumatif Bab 3 Patuh Terhadap Norma\nNama: "+p.n+"\nKelas: "+p.k+(p.a?"\nNo. absen: "+p.a:"")+"\n\n";
+  MISI.forEach(function(m,i){var a=S.a[m.id];t+="MISI "+(i+1)+": "+m.title+"\n"+(a?a.x:"(belum dijawab)")+"\n\n";});
+  return t.trim()+"\n\nKODE HASIL (jangan diubah):\n"+kodeHasil();
+}
+var sending=false,tries=0;
+function statusTeks(){
+  if(!SETORAN_URL)return {t:"Mode uji: game belum dihubungkan ke spreadsheet guru, jadi hasil belum terkirim.",c:"warn"};
+  if(S.pend)return {t:sending?"Mengirim hasil ke guru…":"Hasil belum terkirim. Pastikan internet menyala; game mencoba lagi otomatis.",c:"wait"};
+  return {t:"✓ Hasilmu sudah terkirim ke guru.",c:"ok"};
+}
+function refreshStatus(){
+  var e=document.getElementById("kstat");
+  if(e){var s=statusTeks();e.textContent=s.t;e.className="kstat "+s.c;}
+  var b=document.getElementById("kirim-ulang");
+  if(b)b.hidden=!(SETORAN_URL&&S.pend&&!sending);
+}
+function kirimHasil(manual){
+  if(!SETORAN_URL||!S.p){refreshStatus();return;}
+  if(sending)return;
+  if(manual)tries=0;
+  sending=true;refreshStatus();
+  var body=JSON.stringify(Object.assign({kunci:KUNCI},paket()));
+  fetch(SETORAN_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:body})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      sending=false;
+      if(j&&j.ok){S.pend=false;save();refreshStatus();}
+      else{throw new Error("ditolak");}
+    })
+    .catch(function(){
+      sending=false;tries++;refreshStatus();
+      if(tries<6)setTimeout(function(){if(S.pend)kirimHasil();},8000);
+    });
+}
+function renderFinal(){
+  scrollTop();
+  var n=totalStars();
+  var per=ZONES.map(function(z){
+    var ms=MISI.filter(function(m){return m.zone===z.id;});
+    var s=ms.reduce(function(t,m){return t+(S.a[m.id]?S.a[m.id].s:0);},0);
+    return '<tr><td>'+esc(z.name)+'</td><td class="num">'+s+' / '+(ms.length*3)+'</td></tr>';
+  }).join("");
+  var teks=teksHasil();
+  app.innerHTML = topbar()+
+    '<section class="sign"><span class="lab">Laporan akhir · '+esc(S.p.n)+' · '+esc(S.p.k)+'</span><h2>'+rank(n)+'</h2><p>Kamu mengumpulkan '+n+' dari '+(MISI.length*3)+' bintang permainan. Nilai resmi diberikan gurumu setelah membaca jawabanmu.</p></section>'+
+    '<section class="card"><span class="lab">Bintang per wilayah</span><div class="tabel-wrap"><table><tbody>'+per+'</tbody></table></div></section>'+
+    '<section class="card"><h3>Hasil untuk guru</h3><p class="kstat" id="kstat" role="status"></p>'+
+    '<div class="row"><button class="btn small" id="kirim-ulang" hidden>Kirim ulang</button></div>'+
+    '<details><summary>Pengiriman bermasalah? Salin hasil secara manual</summary><div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">'+
+    '<textarea id="paket" readonly style="min-height:130px;font-size:13px">'+esc(teks)+'</textarea>'+
+    '<div class="row"><button class="btn" id="salin">Salin hasil untuk guru</button><span class="tersalin" id="ok" role="status"></span></div></div></details></section>'+
+    '<div class="row"><button class="btn ghost small" id="peta">Lihat peta</button></div>';
+  document.getElementById("peta").addEventListener("click",renderMap);
+  document.getElementById("kirim-ulang").addEventListener("click",function(){kirimHasil(true);});
+  var ta=document.getElementById("paket"),ok=document.getElementById("ok");
+  document.getElementById("salin").addEventListener("click",function(){
+    function fallback(){ta.focus();ta.select();ok.textContent="Teks sudah dipilih. Tekan Salin pada perangkatmu.";}
+    try{navigator.clipboard.writeText(teks).then(function(){ok.textContent="Tersalin ✓";},fallback);}catch(e){fallback();}
+  });
+  refreshStatus();
+  if(S.pend)kirimHasil();
+}
+
+/* ================= RUANG GURU ================= */
+var guruOK=false;
+try{guruOK=sessionStorage.getItem("mkt-guru")==="1";}catch(e){}
+function loadR(){try{var r=localStorage.getItem(KEYR);if(r)return JSON.parse(r);}catch(e){}return [];}
+function saveR(R){try{localStorage.setItem(KEYR,JSON.stringify(R));}catch(e){}}
+function levelOf(rec,m){
+  if(rec.lv&&rec.lv[m.id])return rec.lv[m.id];
+  var a=rec.p.r[m.id];if(!a)return 0;
+  return saranLevel(m,hits(m,a.x));
+}
+function nilaiOf(rec){
+  var sum=0,ok=true;
+  MISI.forEach(function(m){sum+=levelOf(rec,m);if(!(rec.lv&&rec.lv[m.id]))ok=false;});
+  return {n:Math.round(sum/(MISI.length*4)*100),final:ok};
+}
+function bintangOf(rec){
+  var n=0;MISI.forEach(function(m){var a=rec.p.r[m.id];if(a)n+=starsFor(m,hits(m,a.x),a.h);});return n;
+}
+function renderGuru(sel){
+  scrollTop();
+  if(!guruOK){
+    app.innerHTML='<div class="top"><span class="brand">Ruang guru</span></div><form class="card" id="pin-f"><h3>Masuk ruang guru</h3><div><label for="pin">PIN guru</label><input type="password" id="pin" autocomplete="off"></div><p class="error" id="pin-err" role="alert"></p><div class="row"><button class="btn" type="submit">Masuk</button><a class="btn ghost small" href="#mulai" style="color:var(--tinta);box-shadow:inset 0 0 0 2px #9AA0B8">Kembali</a></div></form>';
+    document.getElementById("pin-f").addEventListener("submit",function(e){
+      e.preventDefault();
+      if(document.getElementById("pin").value.trim().toUpperCase()===PIN_GURU){guruOK=true;try{sessionStorage.setItem("mkt-guru","1");}catch(x){}renderGuru();}
+      else document.getElementById("pin-err").textContent="PIN belum tepat.";
+    });
+    return;
+  }
+  var R=loadR();
+  if(typeof sel==="number"&&R[sel]){renderGuruDetail(R,sel);return;}
+  var rows=R.map(function(rec,i){
+    var v=nilaiOf(rec);
+    return '<tr><td>'+esc(rec.p.n)+'</td><td>'+esc(rec.p.k)+'</td><td class="num">'+bintangOf(rec)+'</td><td class="num"><b>'+v.n+'</b> '+(v.final?'':'<small>(saran)</small>')+'</td><td><button class="btn small" data-i="'+i+'">Nilai</button></td></tr>';
+  }).join("");
+  app.innerHTML='<div class="top"><span class="brand">Ruang guru · Misi Kota Tertib</span><a class="btn ghost small" href="#mulai">Keluar</a></div>'+
+    '<section class="card"><h3>Masukkan hasil murid</h3><p class="muted">Tempel pesan hasil dari murid. Boleh beberapa sekaligus; sistem mengambil setiap kode yang diawali MKT1.</p><textarea id="tempel" placeholder="Tempel di sini" style="min-height:120px"></textarea><div class="row"><button class="btn" id="tambah">Tambahkan</button><span class="tersalin" id="info" role="status"></span></div></section>'+
+    '<section class="card"><h3>Rekap kelas ('+R.length+' murid)</h3>'+
+    (R.length?'<div class="tabel-wrap"><table><thead><tr><th>Nama</th><th>Kelas</th><th>★</th><th>Nilai</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="row"><button class="btn small" id="csv">Salin rekap (CSV)</button><button class="btn ghost small" id="hapus" style="color:var(--tinta);box-shadow:inset 0 0 0 2px #9AA0B8">Kosongkan rekap</button><span class="tersalin" id="info2" role="status"></span></div><p class="muted" style="font-size:14px">Nilai dengan tulisan “saran” dihitung dari tebakan Detektor Nalar. Buka setiap murid untuk menetapkan level rubrik.</p>':'<p class="muted">Belum ada hasil murid.</p>')+'</section>'+
+    '<section class="card"><details><summary>Rubrik penilaian (4 level)</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">'+[4,3,2,1].map(function(k){return '<p><b>'+k+' · '+LEVELS[k][0]+'.</b> '+LEVELS[k][1]+'</p>';}).join("")+'<p class="muted">Nilai akhir = jumlah level dari 10 misi ÷ 40 × 100.</p></div></details></section>';
+  document.getElementById("tambah").addEventListener("click",function(){
+    var txt=document.getElementById("tempel").value,m=txt.match(/MKT1\.[A-Za-z0-9+\/=]+/g)||[],add=0,bad=0,R2=loadR();
+    m.forEach(function(c){
+      try{
+        var p=JSON.parse(unb64(c.slice(5)));
+        if(!p||!p.n||!p.r)throw 0;
+        var key=(p.n+"|"+p.k).toLowerCase(),found=-1;
+        R2.forEach(function(r,i){if((r.p.n+"|"+r.p.k).toLowerCase()===key)found=i;});
+        if(found>=0){if((R2[found].p.t||0)<=(p.t||0)){R2[found]={p:p,lv:R2[found].lv||{}};add++;}}
+        else{R2.push({p:p,lv:{}});add++;}
+      }catch(e){bad++;}
+    });
+    saveR(R2);
+    if(!m.length){document.getElementById("info").textContent="Kode MKT1 tidak ditemukan di teks yang ditempel.";return;}
+    renderGuru();
+    document.getElementById("info").textContent=add+" hasil ditambahkan"+(bad?", "+bad+" kode rusak":"")+".";
+  });
+  app.querySelectorAll("button[data-i]").forEach(function(b){b.addEventListener("click",function(){renderGuru(parseInt(b.getAttribute("data-i"),10));});});
+  var c=document.getElementById("csv");
+  if(c){
+    c.addEventListener("click",function(){
+      var q=function(s){return '"'+String(s).replace(/"/g,'""')+'"';};
+      var head=["Nama","Kelas","No absen"].concat(MISI.map(function(m,i){return "M"+(i+1);})).concat(["Bintang","Nilai","Status"]);
+      var lines=[head.map(q).join(",")];
+      R.forEach(function(rec){var v=nilaiOf(rec);lines.push([rec.p.n,rec.p.k,rec.p.a||""].concat(MISI.map(function(m){return levelOf(rec,m);})).concat([bintangOf(rec),v.n,v.final?"final":"saran"]).map(q).join(","));});
+      var out=lines.join("\n"),i2=document.getElementById("info2");
+      try{navigator.clipboard.writeText(out).then(function(){i2.textContent="Tersalin ✓ Tempel ke Excel atau Google Sheets.";},function(){i2.textContent="Gagal menyalin. Izinkan akses papan klip lalu coba lagi.";});}
+      catch(e){i2.textContent="Gagal menyalin.";}
+    });
+    var armed=false,h=document.getElementById("hapus");
+    h.addEventListener("click",function(){if(!armed){armed=true;h.textContent="Yakin? Tekan lagi";return;}saveR([]);renderGuru();});
+  }
+}
+function renderGuruDetail(R,i){
+  var rec=R[i],y=0,v=nilaiOf(rec);
+  var blocks=MISI.map(function(m,k){
+    var a=rec.p.r[m.id],h=a?hits(m,a.x):m.ind.map(function(){return false;}),lv=levelOf(rec,m),set=rec.lv&&rec.lv[m.id],sg=a?saranLevel(m,h):0;
+    var inds=m.ind.map(function(d,j){return '<li class="'+(h[j]?'y':'n')+'">'+(h[j]?'✓ ':'– ')+esc(d.l)+'</li>';}).join("");
+    var btns=[4,3,2,1].map(function(l){return '<button data-m="'+m.id+'" data-l="'+l+'" aria-pressed="'+(set===l?'true':'false')+'"'+(!set&&sg===l?' class="saran" title="Saran Detektor"':'')+'>'+l+'</button>';}).join("");
+    return '<div class="blok"><h3>Misi '+(k+1)+' · '+esc(m.title)+'</h3><span class="chip lv" style="align-self:flex-start">'+esc(m.lv)+'</span>'+
+      '<p class="muted" style="font-size:14px">'+esc(m.ask)+'</p>'+
+      '<div class="jawaban">'+(a?esc(a.x):'(tidak dijawab)')+'</div>'+
+      (a&&a.h?'<p class="muted" style="font-size:14px">Murid memakai lampu petunjuk.</p>':'')+
+      '<ul class="ind">'+inds+'</ul>'+
+      '<div><span class="lab" style="font:700 14px var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--abu)">Level rubrik '+(set?'':'(garis putus = saran Detektor)')+'</span><div class="lv-btns" style="margin-top:6px">'+btns+'</div></div></div>';
+  }).join("");
+  app.innerHTML='<div class="top"><button class="btn ghost small" id="back">← Rekap</button><span class="skor">Nilai '+v.n+(v.final?'':' (saran)')+'</span></div>'+
+    '<section class="sign"><span class="lab">Kelas '+esc(rec.p.k)+(rec.p.a?' · absen '+esc(rec.p.a):'')+'</span><h2>'+esc(rec.p.n)+'</h2><p>Ketuk level 4 sampai 1 pada tiap misi. Level yang belum diketuk memakai saran Detektor Nalar.</p></section>'+
+    '<section class="card">'+blocks+'</section>';
+  document.getElementById("back").addEventListener("click",function(){renderGuru();});
+  app.querySelectorAll(".lv-btns button").forEach(function(b){b.addEventListener("click",function(){
+    y=window.scrollY;
+    var R2=loadR();if(!R2[i])return;
+    R2[i].lv=R2[i].lv||{};R2[i].lv[b.getAttribute("data-m")]=parseInt(b.getAttribute("data-l"),10);
+    saveR(R2);renderGuru(i);window.scrollTo(0,y);
+  });});
+}
+
+/* ================= ROUTER ================= */
+function route(){
+  if(location.hash==="#guru"){renderGuru();return;}
+  if(S.p&&doneCount()>0&&!window.__mulai){renderMap();window.__mulai=1;return;}
+  renderStart();
+}
+window.addEventListener("hashchange",function(){window.__mulai=0;route();});
+window.addEventListener("online",function(){if(S.pend)kirimHasil(true);});
+route();
+if(S.pend&&S.p)kirimHasil();
+})();
+</script>
+</body>
+</html>
